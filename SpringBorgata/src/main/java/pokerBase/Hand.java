@@ -16,7 +16,7 @@ public class Hand {
 	@XmlElement
 	private ArrayList<Card> CardsInHand;
 	private ArrayList<Card> BestCardsInHand;
-
+	
 	@XmlElement
 	private int HandStrength;
 	@XmlElement
@@ -28,6 +28,7 @@ public class Hand {
 
 	private boolean bScored = false;
 
+	
 	private boolean Flush;
 	private boolean Straight;
 	private boolean Ace;
@@ -87,7 +88,16 @@ public class Hand {
 		return HandStrength;
 	}
 
-
+	public Hand PickBestHand(ArrayList<Hand> handList) throws HandException {
+		if (handList.get(0).getHandStrength() == handList.get(1).getHandStrength()) {
+				throw new HandException();
+		}
+		else {
+		Collections.sort(handList, Hand.HandRank);
+		return handList.get(0);
+		}
+	}
+	
 	public ArrayList<Card> getKicker() {
 		return Kickers;
 	}
@@ -104,6 +114,8 @@ public class Hand {
 		return Ace;
 	}
 
+	
+	
 	public static Hand EvalHand(ArrayList<Card> SeededHand) {
 		
 		Deck d = new Deck();
@@ -140,9 +152,7 @@ public class Hand {
 			Flush = true;
 		} else {
 			Flush = false;
-		}
-
-
+		}	
 
 		// Straight Evaluation
 		if (Ace) {
@@ -164,6 +174,7 @@ public class Hand {
 			} else {
 				Straight = false;
 			}
+			
 			// Looks for straight without Ace
 		} else if (CardsInHand.get(eCardNo.FirstCard.getCardNo()).getRank()
 				.getRank() == CardsInHand.get(eCardNo.SecondCard.getCardNo())
@@ -182,7 +193,16 @@ public class Hand {
 		} else {
 			Straight = false;
 		}
-
+		
+		// Natural Royal Flush
+				if (CardsInHand.get(eCardNo.FirstCard.getCardNo()).getRank() != eRank.JOKER && 
+						Straight == true
+						&& Flush == true
+						&& CardsInHand.get(eCardNo.FifthCard.getCardNo()).getRank() == eRank.TEN
+						&& Ace) {
+					ScoreHand(eHandStrength.NaturalRoyalFlush, 0, 0, null);
+				}
+		
 		// Evaluates the hand type
 		if (Straight == true
 				&& Flush == true
